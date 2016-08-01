@@ -1,0 +1,6 @@
+[submodule "helix_network"]
+	path = helix_network
+	url = https://github.com/cfarbs/helix_network.git
+[submodule "GRU"]
+	path = GRU
+	url = https://github.com/cfarbs/GRU.git
