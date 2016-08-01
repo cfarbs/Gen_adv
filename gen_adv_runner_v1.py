@@ -158,7 +158,7 @@ def main(args):
             "extra_args": extra_args,
             "out_path": args.out,
             "helixdict": config['helixdict'][experiment],
-            "adversarial": args.adversarial
+            "adversarial": args.adversarial,
             "data": init_data
         }
         errors, probs = classify_with_network2(**nn_args)  # activate for debugging
