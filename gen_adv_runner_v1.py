@@ -26,7 +26,7 @@ NEPOCH = int(os.environ.get("NEPOCH", "20"))
 MODEL_OUTPUT_FILE = os.environ.get("MODEL_OUTPUT_FILE")
 PRINT_EVERY = int(os.environ.get("PRINT_EVERY", "25000"))
 #Need to figure out how I'm going to start with one infile and change to another
-INPUT_DATA_FILE = os.environ.get("INPUT_DATA_FILE", "rawhelices.pkl")
+INPUT_DATA_FILE = os.environ.get("INPUT_DATA_FILE", "GRU/rawhelices.pkl")
 
 if not MODEL_OUTPUT_FILE:
   ts = datetime.now().strftime("%Y-%m-%d-%H-%M")
