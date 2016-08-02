@@ -82,7 +82,7 @@ def parse_args():
     parser.add_argument('--output_location', '-o', action='store', dest='out',
                         required=True, type=str, default=None,
                         help="directory to put results")
-    parser.add_argument('adversarial', '-ad', action='store', dest='out',
+    parser.add_argument('--adversarial', '-ad', action='store', dest='adversarial',
                         required=True, type=str, default=True,
                         help="determines whether run will be adversarial")
 
@@ -99,7 +99,7 @@ def parse_args():
 
 def main(args):
     args = parse_args()
-
+    #print (args)
     config = pickle.load(open(args.config, 'rb'))
 
     try:
