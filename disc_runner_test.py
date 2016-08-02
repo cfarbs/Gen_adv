@@ -8,7 +8,7 @@ from argparse import ArgumentParser
 #from multiprocessing import Process, current_process, Manager
 
 
-init_data = pickle.load(open("randhelices.pkl","rb"))
+init_data = pickle.load(open("helix_network/lib/randhelices.pkl","rb"))
 
 
 def parse_args():
@@ -41,7 +41,7 @@ def parse_args():
     parser.add_argument('--output_location', '-o', action='store', dest='out',
                         required=True, type=str, default=None,
                         help="directory to put results")
-    parser.add_argument('adversarial', '-ad', action='store', dest='out',
+    parser.add_argument('--adversarial', '-ad', action='store', dest='out',
                         required=True, type=str, default=True,
                         help="determines whether run will be adversarial")
 
