@@ -8,7 +8,7 @@ import numpy as np
 from GRU.gen_utils import *
 from datetime import datetime
 from GRU.gru_theano import GRUTheano
-
+import timeit
 #Discriminator packages
 import sys
 import pickle
@@ -16,7 +16,14 @@ from helix_network.lib.helix_neural_network import classify_with_network2
 from argparse import ArgumentParser
 #from multiprocessing import Process, current_process, Manager
 
+#Repeat packages
+from gen_assembler import Positives
+
+
 #################### INITIAL GENERATOR CODE ###############################
+start_init = timeit.default_timer()
+start_GRU = timeit.default_timer()
+start_overall = timeit.default_timer()
 
 LEARNING_RATE = float(os.environ.get("LEARNING_RATE", "0.001"))
 VOCABULARY_SIZE = int(os.environ.get("VOCABULARY_SIZE", "24"))
@@ -27,12 +34,13 @@ MODEL_OUTPUT_FILE = os.environ.get("MODEL_OUTPUT_FILE")
 PRINT_EVERY = int(os.environ.get("PRINT_EVERY", "25000"))
 #Need to figure out how I'm going to start with one infile and change to another
 INPUT_DATA_FILE = os.environ.get("INPUT_DATA_FILE", "GRU/Init_seq.pkl")
+ADVERSARIAL = os.environ.get("ADVERSARIAL", False)
 
 if not MODEL_OUTPUT_FILE:
   ts = datetime.now().strftime("%Y-%m-%d-%H-%M")
-  MODEL_OUTPUT_FILE = "GRU-%s-%s-%s-%s-initial.dat" % (ts, VOCABULARY_SIZE, EMBEDDING_DIM, HIDDEN_DIM)
+  MODEL_OUTPUT_FILE = "gen_models/GRU-%s-%s-%s-%s-initial.dat" % (ts, VOCABULARY_SIZE, EMBEDDING_DIM, HIDDEN_DIM)
 
-x_train, y_train, word_to_index, index_to_word = load_data(INPUT_DATA_FILE, VOCABULARY_SIZE)
+x_train, y_train, word_to_index, index_to_word = load_data(INPUT_DATA_FILE, VOCABULARY_SIZE, ADVERSARIAL)
 
 init_model = GRUTheano(VOCABULARY_SIZE, hidden_dim=HIDDEN_DIM, bptt_truncate=-1)
 
@@ -48,10 +56,13 @@ for epoch in range(NEPOCH):
     callback_every=PRINT_EVERY, callback=sgd_callback)
 
 init_data = generate_sentences(init_model, 1000, index_to_word, word_to_index)
-
+elapsed_gru = timeit.default_timer() - start_GRU
 print ("Generative Network initialization COMPLETE.")
+print ("Time elapsed for GRU initial training: %s"%(elapsed_gru))
 ######################## INITIAL DISCRIMINATOR CODE ########################
-
+start_disc = timeit.default_timer()
+errors = []
+probs = []
 def parse_args():
     parser = ArgumentParser(description=__doc__)
 
@@ -181,8 +192,54 @@ def main(args):
 #    done_queue.put('STOP')
 
     print (sys.stderr, "\n\tFinished Neural Net")
-    print (sys.stdout, "\n\tFinished Neural Net")
 
+    elapsed_disc = timeit.default_timer() - start_disc
+    elapsed_init = timeit.default_timer() - start_init
+    print ("Time elapsed for Discriminator initial training: %s"%(elapsed_disc))
+    print ("Time elapsed for initial discriminative run: %s"%(elapsed))
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
+
+####################### REPEATED SEGMENT - GENERATIVE ADVERSARIAL ###################
+start_repeat = timeit.default_timer()
+
+ADVERSARIAL = os.environ.get("ADVERSARIAL", True)
+
+init_data = []
+errorlist = []
+repeat_data = Positives(probs)
+iternum = 1
+
+while np.mean(errorlist) not in range(48,53):
+    if not MODEL_OUTPUT_FILE:
+      ts = datetime.now().strftime("%Y-%m-%d-%H-%M")
+      MODEL_OUTPUT_FILE = "gen_models/GRU-%s-%s-%s-%s-%s.dat" % (ts, VOCABULARY_SIZE, EMBEDDING_DIM, HIDDEN_DIM, iternum)
+
+    x_train, y_train, word_to_index, index_to_word = load_data(repeat_data, VOCABULARY_SIZE, ADVERSARIAL)
+
+    model = GRUTheano(VOCABULARY_SIZE, hidden_dim=HIDDEN_DIM, bptt_truncate=-1)
+
+    # Print SGD step time
+    t1 = time.time()
+    model.sgd_step(x_train[10], y_train[10], LEARNING_RATE)
+    t2 = time.time()
+    print ("SGD Step time: %f milliseconds" % ((t2 - t1) * 1000.))
+    sys.stdout.flush()
+
+    for epoch in range(NEPOCH):
+      train_with_sgd(model, x_train, y_train, learning_rate=LEARNING_RATE, nepoch=1, decay=0.9,
+        callback_every=PRINT_EVERY, callback=sgd_callback)
+
+    init_data = generate_sentences(model, 1000, index_to_word, word_to_index)
+
+    errors, probs = classify_with_network2(**nn_args)
+    new_data = Positives(probs)
+    repeat_data.append(new_data)
+    errorlist.append(errors)
+    iternum += 1
+
+elapsed_repeat = timeit.default_timer() - start_repeat
+print ("Generative Adversarial Network complete!")
+print ("Number of iterations to train: %s"%(iternum))
+print ("Final test accuracy: %s"%(errorlist[len(errorlist)-1]))
