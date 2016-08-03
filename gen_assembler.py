@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import numpy as np
+from helix_network.lib.prot_to_num import amino_dict
+
 
 def Positives(data):
     truepos = 0
@@ -24,3 +26,6 @@ def Positives(data):
             print (prob[1])
             print ("Some how, a third value was decided on by a binary classifier. Weird, huh?")
     return positives
+
+# MAKE SCRIPT TO CONVERT LETTERS BACK INTO NUMBERS
+#def Num2Prot(data):

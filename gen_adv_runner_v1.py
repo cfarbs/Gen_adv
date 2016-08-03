@@ -22,6 +22,7 @@ from gen_assembler import Positives
 
 #################### INITIAL GENERATOR CODE ###############################
 start_init = timeit.default_timer()
+start_GRU_train = timeit.default_timer()
 start_GRU = timeit.default_timer()
 start_overall = timeit.default_timer()
 
@@ -54,8 +55,12 @@ sys.stdout.flush()
 for epoch in range(NEPOCH):
   train_with_sgd(init_model, x_train, y_train, learning_rate=LEARNING_RATE, nepoch=1, decay=0.9,
     callback_every=PRINT_EVERY, callback=sgd_callback)
+elapsed_gru_train = timeit.default_timer - start_GRU_train
+print ("GRU network training complete!")
+print ("Time elapsed: %s" % (elapsed_gru_train))
 
 init_data = generate_sentences(init_model, 1000, index_to_word, word_to_index)
+
 elapsed_gru = timeit.default_timer() - start_GRU
 print ("Generative Network initialization COMPLETE.")
 print ("Time elapsed for GRU initial training: %s"%(elapsed_gru))
