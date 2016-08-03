@@ -27,5 +27,17 @@ def Positives(data):
             print ("Some how, a third value was decided on by a binary classifier. Weird, huh?")
     return positives
 
-# MAKE SCRIPT TO CONVERT LETTERS BACK INTO NUMBERS
-#def Num2Prot(data):
+#Module to convert amino acid in digit form back into numbers
+def Num2Prot(data):
+    digitseq = []
+    amino = amino_dict()
+    amino2num = {}
+    for acids in amino.keys():
+        amino2num[int(amino[acids])]=acids
+    for count, aa in enumerate(data):
+        tempdigi = []
+        for residue in range(len(aa)):
+          tempdigi.append(amino2num[aa[residue]])
+          if len(tempdigi) == len(aa):
+              digitseq.append(tempdigi)
+    return digitseq

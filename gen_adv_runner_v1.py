@@ -1,14 +1,21 @@
 #!/usr/bin/env python
 
+##############################################
+# A combined runner program to run a generative adversarial network
+# to generate novel protein sequences.
+# This implementation generates portions of helices based on real data.
+##############################################
+
 #Generator packages
 import sys
 import os
 import time
 import numpy as np
 from GRU.gen_utils import *
-from datetime import datetime
+from datetime import datetime, timedelta
 from GRU.gru_theano import GRUTheano
-import timeit
+import time
+
 #Discriminator packages
 import sys
 import pickle
@@ -17,15 +24,17 @@ from argparse import ArgumentParser
 #from multiprocessing import Process, current_process, Manager
 
 #Repeat packages
-from gen_assembler import Positives
+from gen_assembler import Positives, Num2Prot
 
 
 #################### INITIAL GENERATOR CODE ###############################
-start_init = timeit.default_timer()
-start_GRU_train = timeit.default_timer()
-start_GRU = timeit.default_timer()
-start_overall = timeit.default_timer()
+#Timers for debugging to determine when certain events happen
+start_init = time.monotonic()
+start_GRU_train = time.monotonic()
+start_GRU = time.monotonic()
+start_overall = time.monotonic()
 
+#Assign all variables required for the generator.
 LEARNING_RATE = float(os.environ.get("LEARNING_RATE", "0.001"))
 VOCABULARY_SIZE = int(os.environ.get("VOCABULARY_SIZE", "24"))
 EMBEDDING_DIM = int(os.environ.get("EMBEDDING_DIM", "48"))
@@ -33,16 +42,19 @@ HIDDEN_DIM = int(os.environ.get("HIDDEN_DIM", "128"))
 NEPOCH = int(os.environ.get("NEPOCH", "20"))
 MODEL_OUTPUT_FILE = os.environ.get("MODEL_OUTPUT_FILE")
 PRINT_EVERY = int(os.environ.get("PRINT_EVERY", "25000"))
-#Need to figure out how I'm going to start with one infile and change to another
 INPUT_DATA_FILE = os.environ.get("INPUT_DATA_FILE", "GRU/Init_seq.pkl")
+#Because adversarial is false, the network will look in the above data file for data.
 ADVERSARIAL = os.environ.get("ADVERSARIAL", False)
 
+#Names the generator file based on the time and day it was made
 if not MODEL_OUTPUT_FILE:
   ts = datetime.now().strftime("%Y-%m-%d-%H-%M")
   MODEL_OUTPUT_FILE = "gen_models/GRU-%s-%s-%s-%s-initial.dat" % (ts, VOCABULARY_SIZE, EMBEDDING_DIM, HIDDEN_DIM)
 
+#Load the initial dataset from the pickle file, tokenize it, and prepare it for use as training data
 x_train, y_train, word_to_index, index_to_word = load_data(INPUT_DATA_FILE, VOCABULARY_SIZE, ADVERSARIAL)
 
+#Creates an initial GRU model
 init_model = GRUTheano(VOCABULARY_SIZE, hidden_dim=HIDDEN_DIM, bptt_truncate=-1)
 
 # Print SGD step time
@@ -52,22 +64,36 @@ t2 = time.time()
 print ("SGD Step time: %f milliseconds" % ((t2 - t1) * 1000.))
 sys.stdout.flush()
 
+#Trains the network with sgd
 for epoch in range(NEPOCH):
   train_with_sgd(init_model, x_train, y_train, learning_rate=LEARNING_RATE, nepoch=1, decay=0.9,
     callback_every=PRINT_EVERY, callback=sgd_callback)
-elapsed_gru_train = timeit.default_timer - start_GRU_train
+
+#Once training is complete, prints how much time has elapsed.
+end_gru_train = time.monotonic()
+elapsed_gru_train = timedelta(seconds=end_gru_train - start_GRU_train)
 print ("GRU network training complete!")
 print ("Time elapsed: %s" % (elapsed_gru_train))
 
+#Generate a data set for the discriminator to look at
 init_data = generate_sentences(init_model, 1000, index_to_word, word_to_index)
 
-elapsed_gru = timeit.default_timer() - start_GRU
+#Take the overall time required for the initial training.
+end_gru = time.monotonic()
+elapsed_gru = timedelta(seconds=end_gru - start_GRU)
 print ("Generative Network initialization COMPLETE.")
 print ("Time elapsed for GRU initial training: %s"%(elapsed_gru))
 ######################## INITIAL DISCRIMINATOR CODE ########################
-start_disc = timeit.default_timer()
+#Timer to determine how long discriminator takes to discriminate
+start_disc = time.monotonic()
+
+#Lists initialized to store the error rate and test data points.
 errors = []
 probs = []
+
+#An argument parser to introduce arguments into the discriminator.
+#The network starts adversarial, as it will be taking data from live memory,
+#rather than from a file.
 def parse_args():
     parser = ArgumentParser(description=__doc__)
 
@@ -103,9 +129,9 @@ def parse_args():
                         help="determines whether run will be adversarial")
 
     args = parser.parse_args()
-    #print (type(args))
     return args
 
+#Code to run the discriminator as a multiprocessing function
 #def run_nn2(work_queue, done_queue):
 #    try:
 #        for f in iter(work_queue.get, 'STOP'):
@@ -115,9 +141,13 @@ def parse_args():
 
 def main(args):
     args = parse_args()
-    #print (args)
+
+    #Config files are made with make_helix_config.py
+    #Every config file is a pickled dictionary.
     config = pickle.load(open(args.config, 'rb'))
 
+    #Only certain arguments are sourced from the config file.
+    #Additional arguments may be added under extra_args.
     try:
             extra_args = config['extra_args']
             batch_size = extra_args['batch_size']
@@ -125,8 +155,10 @@ def main(args):
             extra_args = None
             batch_size = args.batch_size
 
+    #Whether from the config file or the command line, there must always be a batch size.
     assert(batch_size is not None), "You need to specify batch_size with a flag or have it in the config file"
 
+#Prints out a start message, describing the arguments and configurations used for the run.
     start_message = """
 #    Starting Neural Net analysis for {title}
 #    Command line: {cmd}
@@ -152,11 +184,14 @@ def main(args):
 #
 #
     print (sys.stdout, start_message)
+
+# More code related to multiprocessing jobs
 #    workers = args.jobs
 #    work_queue = Manager().Queue()
 #    done_queue = Manager().Queue()
 #    jobs = []
 
+#Loads the network to run experiments equal to the number prescribed by the dictionary.
     for experiment in range(len(config['helixdict'])):
         nn_args = {
             "preprocess": args.preprocess,
@@ -178,7 +213,10 @@ def main(args):
             "adversarial": args.adversarial,
             "data": init_data
         }
+        #Activate for debugging, but also if a multiprocess run is not desired
         errors, probs = classify_with_network2(**nn_args)  # activate for debugging
+
+#The commented code between lines 217 and 235 is related to multiprocessing.
 #        work_queue.put(nn_args)
 #        print (probs[5])
 #    for w in range(workers):
@@ -195,11 +233,13 @@ def main(args):
 #        p.join()
 
 #    done_queue.put('STOP')
-
+#Prints a finished statement once a run is complete
     print (sys.stderr, "\n\tFinished Neural Net")
-
-    elapsed_disc = timeit.default_timer() - start_disc
-    elapsed_init = timeit.default_timer() - start_init
+#Prints time elapsed for discriminator step and initialization step
+    end_disc = time.monotonic()
+    end_init = time.monotonic()
+    elapsed_disc = timedelta(seconds=end_disc - start_disc)
+    elapsed_init = timedelta(seconds=end_init - start_init)
     print ("Time elapsed for Discriminator initial training: %s"%(elapsed_disc))
     print ("Time elapsed for initial discriminative run: %s"%(elapsed))
 
@@ -207,16 +247,24 @@ if __name__ == "__main__":
     sys.exit(main(sys.argv))
 
 ####################### REPEATED SEGMENT - GENERATIVE ADVERSARIAL ###################
-start_repeat = timeit.default_timer()
+#Starts a timer to track how long repeated segment takes
+start_repeat = time.monotonic()
 
+#Generator now will use data points from the discriminator to train.
 ADVERSARIAL = os.environ.get("ADVERSARIAL", True)
 
+#Resets the initial data variable so it can be used in the repeated segment.
 init_data = []
+#List to contain the means of errors for each run
 errorlist = []
+errorlist.append(errors)
+#List to store the true positives found by the generator, and feed them to the discriminator
 repeat_data = Positives(probs)
+#Variable to count how many iterations it takes for the generator to fool the discriminator
 iternum = 1
 
 while np.mean(errorlist) not in range(48,53):
+    #Repeated generator code; trains with repeat_data
     if not MODEL_OUTPUT_FILE:
       ts = datetime.now().strftime("%Y-%m-%d-%H-%M")
       MODEL_OUTPUT_FILE = "gen_models/GRU-%s-%s-%s-%s-%s.dat" % (ts, VOCABULARY_SIZE, EMBEDDING_DIM, HIDDEN_DIM, iternum)
@@ -235,16 +283,29 @@ while np.mean(errorlist) not in range(48,53):
     for epoch in range(NEPOCH):
       train_with_sgd(model, x_train, y_train, learning_rate=LEARNING_RATE, nepoch=1, decay=0.9,
         callback_every=PRINT_EVERY, callback=sgd_callback)
-
+    #Creates another dataset for the discriminator
     init_data = generate_sentences(model, 1000, index_to_word, word_to_index)
 
+    #Discriminator discriminates, using same arguments passed initially.
     errors, probs = classify_with_network2(**nn_args)
     new_data = Positives(probs)
+    #New true positives are appended to training corpus
+    new_data = Num2Prot(new_data)
     repeat_data.append(new_data)
+    #New error rate appended to list of errors
     errorlist.append(errors)
+    #Appends the number of iterations
     iternum += 1
 
-elapsed_repeat = timeit.default_timer() - start_repeat
+#Takes the final total elapsed time
+end_repeat = time.monotonic()
+end_overall = time.monotonic()
+elapsed_repeat = timedelta(seconds=end_repeat - start_repeat)
+elapsed_overall = timedelta(seconds=end_overall - start_overall)
+
+#prints and summarizes the run
 print ("Generative Adversarial Network complete!")
 print ("Number of iterations to train: %s"%(iternum))
+print ("Time spent iterating: %s" % (elapsed_repeat))
 print ("Final test accuracy: %s"%(errorlist[len(errorlist)-1]))
+print ("Overall time elapsed: %s"%(elapsed_overall))
