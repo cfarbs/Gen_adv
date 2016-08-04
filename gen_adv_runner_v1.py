@@ -30,6 +30,8 @@ from gen_assembler import Positives, Num2Prot
 #################### INITIAL GENERATOR CODE ###############################
 #Timers for debugging to determine when certain events happen
 start_init = time.monotonic()
+MODEL_OUTPUT_FILE = os.environ.get("MODEL_OUTPUT_FILE")
+
 """start_GRU_train = time.monotonic()
 start_GRU = time.monotonic()
 start_overall = time.monotonic()
