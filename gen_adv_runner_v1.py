@@ -266,9 +266,9 @@ def main(args):
     end_disc = time.monotonic()
     end_init = time.monotonic()
     elapsed_disc = timedelta(seconds=end_disc - start_disc)
-    elapsed_init = timedelta(seconds=end_init - start_init)
-    print ("Time elapsed for Discriminator initial training: %s"%(elapsed_disc))
-    print ("Time elapsed for initial discriminative run: %s"%(elapsed))
+#    elapsed_init = timedelta(seconds=end_init - start_init)
+#    print ("Time elapsed for Discriminator initial training: %s"%(elapsed_disc))
+#    print ("Time elapsed for initial discriminative run: %s"%(elapsed_init))
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
