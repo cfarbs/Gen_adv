@@ -190,7 +190,7 @@ def main(args):
 #    work_queue = Manager().Queue()
 #    done_queue = Manager().Queue()
 #    jobs = []
-
+    adversarial = args.adversarial
 #Loads the network to run experiments equal to the number prescribed by the dictionary.
     for experiment in range(len(config['helixdict'])):
         if adversarial:
