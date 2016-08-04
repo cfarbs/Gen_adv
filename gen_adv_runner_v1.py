@@ -190,7 +190,12 @@ def main(args):
 #    work_queue = Manager().Queue()
 #    done_queue = Manager().Queue()
 #    jobs = []
+
+######## FOR DEBUGGING; MAKE SURE TO REMOVE! ###################
+    init_data = pickle.load(open("helix_network/lib/gen_helices.pkl","rb"))
     adversarial = args.adversarial
+################################################################
+
 #Loads the network to run experiments equal to the number prescribed by the dictionary.
     for experiment in range(len(config['helixdict'])):
         if adversarial:
