@@ -30,7 +30,7 @@ from gen_assembler import Positives, Num2Prot
 #################### INITIAL GENERATOR CODE ###############################
 #Timers for debugging to determine when certain events happen
 start_init = time.monotonic()
-start_GRU_train = time.monotonic()
+"""start_GRU_train = time.monotonic()
 start_GRU = time.monotonic()
 start_overall = time.monotonic()
 
@@ -82,7 +82,7 @@ init_data = generate_sentences(init_model, 1000, index_to_word, word_to_index)
 end_gru = time.monotonic()
 elapsed_gru = timedelta(seconds=end_gru - start_GRU)
 print ("Generative Network initialization COMPLETE.")
-print ("Time elapsed for GRU initial training: %s"%(elapsed_gru))
+print ("Time elapsed for GRU initial training: %s"%(elapsed_gru))"""
 ######################## INITIAL DISCRIMINATOR CODE ########################
 #Timer to determine how long discriminator takes to discriminate
 start_disc = time.monotonic()
