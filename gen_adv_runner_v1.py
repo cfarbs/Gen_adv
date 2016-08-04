@@ -193,6 +193,7 @@ def main(args):
 
 ######## FOR DEBUGGING; MAKE SURE TO REMOVE! ###################
     init_data = pickle.load(open("helix_network/lib/gen_helices.pkl","rb"))
+    init_data = init_data[:1000]
     adversarial = args.adversarial
 ################################################################
 
@@ -275,6 +276,7 @@ if __name__ == "__main__":
 
 ####################### REPEATED SEGMENT - GENERATIVE ADVERSARIAL ###################
 #Starts a timer to track how long repeated segment takes
+print ("test")
 start_repeat = time.monotonic()
 
 #Generator now will use data points from the discriminator to train.
