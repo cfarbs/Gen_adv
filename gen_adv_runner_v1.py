@@ -271,8 +271,8 @@ def main(args):
 #    print ("Time elapsed for Discriminator initial training: %s"%(elapsed_disc))
 #    print ("Time elapsed for initial discriminative run: %s"%(elapsed_init))
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+#if __name__ == "__main__":
+#    sys.exit(main(sys.argv))
 
 ####################### REPEATED SEGMENT - GENERATIVE ADVERSARIAL ###################
 #Starts a timer to track how long repeated segment takes
