@@ -193,26 +193,48 @@ def main(args):
 
 #Loads the network to run experiments equal to the number prescribed by the dictionary.
     for experiment in range(len(config['helixdict'])):
-        nn_args = {
-            "preprocess": args.preprocess,
-            "title": config["helixdict"][experiment]['title'],
-            "learning_algorithm": args.learning_algo,
-            "train_test_split": args.split,
-            "iterations": args.iter,
-            "epochs": args.epochs,
-            "batch_size": batch_size,
-            "learning_rate": args.learning_rate,
-            "L1_reg": args.L1,
-            "L2_reg": args.L2,
-            "hidden_dim": config['hidden_dim'],
-            "model_type": config['model_type'],
-            "model_dir": args.model_file,
-            "extra_args": extra_args,
-            "out_path": args.out,
-            "helixdict": config['helixdict'][experiment],
-            "adversarial": args.adversarial,
-            "data": init_data
-        }
+        if adversarial:
+            nn_args = {
+                "preprocess": args.preprocess,
+                "title": config["helixdict"][experiment]['title'],
+                "learning_algorithm": args.learning_algo,
+                "train_test_split": args.split,
+                "iterations": args.iter,
+                "epochs": args.epochs,
+                "batch_size": batch_size,
+                "learning_rate": args.learning_rate,
+                "L1_reg": args.L1,
+                "L2_reg": args.L2,
+                "hidden_dim": config['hidden_dim'],
+                "model_type": config['model_type'],
+                "model_dir": args.model_file,
+                "extra_args": extra_args,
+                "out_path": args.out,
+                "helixdict": config['helixdict'][experiment],
+                "adversarial": args.adversarial,
+                "data": init_data
+            }
+        else:
+            nn_args = {
+                "preprocess": args.preprocess,
+                "title": config["helixdict"][experiment]['title'],
+                "learning_algorithm": args.learning_algo,
+                "train_test_split": args.split,
+                "iterations": args.iter,
+                "epochs": args.epochs,
+                "batch_size": batch_size,
+                "learning_rate": args.learning_rate,
+                "L1_reg": args.L1,
+                "L2_reg": args.L2,
+                "hidden_dim": config['hidden_dim'],
+                "model_type": config['model_type'],
+                "model_dir": args.model_file,
+                "extra_args": extra_args,
+                "out_path": args.out,
+                "helixdict": config['helixdict'][experiment],
+                "adversarial": args.adversarial,
+                "data": None
+            }
         #Activate for debugging, but also if a multiprocess run is not desired
         errors, probs = classify_with_network2(**nn_args)  # activate for debugging
 
