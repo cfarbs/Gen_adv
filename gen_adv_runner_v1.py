@@ -30,7 +30,7 @@ from gen_assembler import Positives, Num2Prot
 #################### INITIAL GENERATOR CODE ###############################
 #Timers for debugging to determine when certain events happen
 start_init = time.monotonic()
-MODEL_OUTPUT_FILE = os.environ.get("MODEL_OUTPUT_FILE")
+
 
 """start_GRU_train = time.monotonic()
 start_GRU = time.monotonic()
@@ -282,6 +282,20 @@ print ("test")
 start_repeat = time.monotonic()
 
 #Generator now will use data points from the discriminator to train.
+
+###################### FOR DEBUGGING ##############################
+
+#Assign all variables required for the generator.
+LEARNING_RATE = float(os.environ.get("LEARNING_RATE", "0.001"))
+VOCABULARY_SIZE = int(os.environ.get("VOCABULARY_SIZE", "24"))
+EMBEDDING_DIM = int(os.environ.get("EMBEDDING_DIM", "48"))
+HIDDEN_DIM = int(os.environ.get("HIDDEN_DIM", "128"))
+NEPOCH = int(os.environ.get("NEPOCH", "20"))
+MODEL_OUTPUT_FILE = os.environ.get("MODEL_OUTPUT_FILE")
+PRINT_EVERY = int(os.environ.get("PRINT_EVERY", "25000"))
+INPUT_DATA_FILE = os.environ.get("INPUT_DATA_FILE", "GRU/Init_seq.pkl")
+######################################################################
+
 ADVERSARIAL = os.environ.get("ADVERSARIAL", True)
 
 #Resets the initial data variable so it can be used in the repeated segment.
