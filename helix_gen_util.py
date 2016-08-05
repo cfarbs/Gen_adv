@@ -63,7 +63,7 @@ def parse_args():
 #    except Exception:
 #        done_queue.put("%s failed" % current_process().name)
 
-def main(args):
+def main(args, data):
     args = parse_args()
 
     #Config files are made with make_helix_config.py
@@ -121,7 +121,7 @@ def main(args):
         init_data = init_data[:1000]
         adversarial = args.adversarial
 ################################################################
-
+    adversarial = args.adversarial
 #Loads the network to run experiments equal to the number prescribed by the dictionary.
     for experiment in range(len(config['helixdict'])):
         if adversarial:
@@ -143,7 +143,7 @@ def main(args):
                 "out_path": args.out,
                 "helixdict": config['helixdict'][experiment],
                 "adversarial": args.adversarial,
-                "data": init_data
+                "data": data
             }
         else:
             nn_args = {
@@ -168,7 +168,7 @@ def main(args):
             }
         #Activate for debugging, but also if a multiprocess run is not desired
         errors, probs = classify_with_network2(**nn_args)  # activate for debugging
-        return errors, probs
+        return errors, probs, config
 #The commented code between lines 217 and 235 is related to multiprocessing.
 #        work_queue.put(nn_args)
 #        print (probs[5])

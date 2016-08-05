@@ -33,11 +33,50 @@ def Num2Prot(data):
     amino = amino_dict()
     amino2num = {}
     for acids in amino.keys():
-        amino2num[int(amino[acids])]=acids
+        amino2num[str(amino[acids])]=acids
     for count, aa in enumerate(data):
         tempdigi = []
         for residue in range(len(aa)):
-          tempdigi.append(str(amino2num[aa[residue]]))
-          if len(tempdigi) == len(aa):
-              digitseq.append(tempdigi)
+            tempdigi.append(str(amino2num[aa[residue]]))
+            if len(tempdigi) == len(aa):
+                digitseq.append(tempdigi)
+    return digitseq
+
+def Value2Key(data,dictionary):
+    valuedict = {}
+    digitseq = []
+    keylength = 0
+    for keys in dictionary.keys():
+        valuedict[str(dictionary[keys])]=keys
+    print (valuedict.keys())
+    for keys in valuedict.keys():
+        string = keys.strip("[")
+        string = string.strip("]")
+        string = string.split(" ")
+        keylength = len(string)
+    tempdigi = []
+    for count, aa in enumerate(data):
+        reslist = []
+        for residue in aa:
+            #print (residue)
+            residue = str(residue)
+            reslist.append(residue)
+            if len(reslist)==keylength:
+                tempfeats = ", ".join(reslist)
+                tempfeats = "["+tempfeats+"]"
+                tempfeats = str(tempfeats)
+                #print (valuedict[tempfeats])
+                #print (tempfeats)
+                if tempfeats in valuedict.keys():
+                    #print ("Found one!")
+                    #print (tempfeats)
+                    tempdigi.append(str(valuedict[tempfeats]))
+                    #print (tempdigi)
+                    #print(len(tempdigi))
+                    if len(tempdigi) == len(aa)/keylength:
+                        print (tempdigi)
+                        digitseq.append(tempdigi)
+                        reslist = []
+                        tempdigi = []
+
     return digitseq

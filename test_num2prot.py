@@ -3,7 +3,7 @@ import pickle
 from gen_assembler import Num2Prot
 from random import shuffle, sample
 
-outsent = pickle.load(open("helix_network/lib/gen_helices.pkl","rb"))
+"""outsent = pickle.load(open("helix_network/lib/gen_helices.pkl","rb"))
 #print (len(outsent))
 #data = Num2Prot(outsent)
 #print(data[30])
@@ -15,4 +15,9 @@ print (len(short))
 if len(test) != len(short):
     test_short = sample(test,len(short))
 print (len(test_short))
-print (test_short)
+print (test_short)"""
+
+filename = "GRU/Init_seq.pkl"
+
+f = pickle.load(open(filename,"rb"))
+print (f)

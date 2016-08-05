@@ -26,8 +26,8 @@ import time
 from helix_gen_util import main, parse_args
 
 #Repeat packages
-from gen_assembler import Positives, Num2Prot
-
+from gen_assembler import Positives, Num2Prot, Value2Key
+from helix_network.lib.context_dict import contextdict
 
 #################### INITIAL GENERATOR CODE ###############################
 #Timers for debugging to determine when certain events happen
@@ -56,7 +56,7 @@ if not MODEL_OUTPUT_FILE:
   MODEL_OUTPUT_FILE = "gen_models/GRU-%s-%s-%s-%s-initial.dat" % (ts, VOCABULARY_SIZE, EMBEDDING_DIM, HIDDEN_DIM)
 
 #Load the initial dataset from the pickle file, tokenize it, and prepare it for use as training data
-x_train, y_train, word_to_index, index_to_word = load_data(INPUT_DATA_FILE, VOCABULARY_SIZE, ADVERSARIAL)
+x_train, y_train, word_to_index, index_to_word = load_data(ADVERSARIAL, INPUT_DATA_FILE, VOCABULARY_SIZE)
 
 #Creates an initial GRU model
 init_model = GRUTheano(VOCABULARY_SIZE, hidden_dim=HIDDEN_DIM, bptt_truncate=-1)
@@ -80,19 +80,28 @@ print ("GRU network training complete!")
 print ("Time elapsed: %s" % (elapsed_gru_train))
 
 #Generate a data set for the discriminator to look at
-init_data = generate_sentences(init_model, 1000, index_to_word, word_to_index)
+init_data = generate_sentences(init_model, 10000, index_to_word, word_to_index)
 
 #Take the overall time required for the initial training.
 end_gru = time.monotonic()
 elapsed_gru = timedelta(seconds=end_gru - start_GRU)
 print ("Generative Network initialization COMPLETE.")
 print ("Time elapsed for GRU initial training: %s"%(elapsed_gru))
+
+
 ######################## INITIAL DISCRIMINATOR CODE ########################
 #Timer to determine how long discriminator takes to discriminate
 start_disc = time.monotonic()
 
+##################### DEBUGGING #######################
+if Debug:
+    init_data = pickle.load(open("helix_network/lib/gen_helices.pkl","rb"))
+    init_data = init_data[:1000]
+#######################################################
+
+#Discriminator runner
 args = parse_args()
-errors, probs = main(args)
+errors, probs, config = main(args,init_data)
 
 #List to contain the means of errors for each run
 errorlist = []
@@ -125,7 +134,6 @@ if Debug:
     PRINT_EVERY = int(os.environ.get("PRINT_EVERY", "25000"))
     INPUT_DATA_FILE = os.environ.get("INPUT_DATA_FILE", "GRU/Init_seq.pkl")
 ######################################################################
-
 ADV = os.environ.get("ADV", True)
 
 #Resets the initial data variable so it can be used in the repeated segment.
@@ -133,9 +141,16 @@ init_data = []
 
 #List to store the true positives found by the generator, and feed them to the discriminator
 repeat_data = Positives(probs)
-repeat_data = Num2Prot(repeat_data)
-print (type(repeat_data))
 print (repeat_data[0])
+tempdict = config['helixdict'][0]
+
+
+aadict, feats = contextdict(**tempdict)
+
+repeat_data = Value2Key(repeat_data,aadict)
+#print (repeat_data[0])
+repeat_data = Num2Prot(repeat_data)
+
 #Variable to count how many iterations it takes for the generator to fool the discriminator
 iternum = 1
 
@@ -160,14 +175,18 @@ while np.mean(errorlist) not in range(48,53):
       train_with_sgd(model, x_train, y_train, learning_rate=LEARNING_RATE, nepoch=1, decay=0.9,
         callback_every=PRINT_EVERY, callback=sgd_callback)
     #Creates another dataset for the discriminator
-    init_data = generate_sentences(model, 1000, index_to_word, word_to_index)
+    init_data = generate_sentences(model, 10000, index_to_word, word_to_index)
 
     #Discriminator discriminates, using same arguments passed initially.
-    errors, probs = classify_with_network2(**nn_args)
-    new_data = Positives(probs)
+    args = parse_args()
+    errors, probs, config = main(args,init_data)
+
     #New true positives are appended to training corpus
+    new_data = Positives(probs)
+    new_data = Value2Key(new_data,aadict)
     new_data = Num2Prot(new_data)
     repeat_data.append(new_data)
+
     #New error rate appended to list of errors
     errorlist.append(errors)
     #Appends the number of iterations
