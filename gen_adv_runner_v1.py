@@ -173,7 +173,7 @@ while np.mean(errorlist) not in range(48,53):
 
     for epoch in range(NEPOCH):
       train_with_sgd(model, x_train, y_train, learning_rate=LEARNING_RATE, nepoch=1, decay=0.9,
-        callback_every=PRINT_EVERY, callback=sgd_callback)
+        callback_every=200, callback=sgd_callback)
     #Creates another dataset for the discriminator
     init_data = generate_sentences(model, 10000, index_to_word, word_to_index)
 
