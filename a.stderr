@@ -1,0 +1,7 @@
+ERROR (theano.sandbox.cuda): nvcc compiler not found on $PATH. Check your nvcc installation and try again.
+forrtl: error (200): program aborting due to control-C event
+Image              PC                Routine            Line        Source             
+libifcoremd.dll    00007FFABD4A43E4  Unknown               Unknown  Unknown
+KERNELBASE.dll     00007FFAE2C96634  Unknown               Unknown  Unknown
+KERNEL32.DLL       00007FFAE4018102  Unknown               Unknown  Unknown
+ntdll.dll          00007FFAE64AC5B4  Unknown               Unknown  Unknown
