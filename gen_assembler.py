@@ -37,7 +37,7 @@ def Num2Prot(data):
     for count, aa in enumerate(data):
         tempdigi = []
         for residue in range(len(aa)):
-            tempdigi.append(str(amino2num[aa[residue]]))
+            tempdigi.append(str(amino2num[str(aa[residue])]))
             if len(tempdigi) == len(aa):
                 digitseq.append(tempdigi)
     return digitseq

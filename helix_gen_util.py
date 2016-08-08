@@ -123,7 +123,7 @@ def main(args, data):
 ################################################################
     adversarial = args.adversarial
 #Loads the network to run experiments equal to the number prescribed by the dictionary.
-    for experiment in range(len(config['helixdict'])):
+    for experiment in range(args.iter):
         if adversarial:
             nn_args = {
                 "preprocess": args.preprocess,
