@@ -30,7 +30,7 @@ from gen_assembler import Positives, Num2Prot, Value2Key
 from helix_network.lib.context_dict import contextdict
 
 #################### INITIAL GENERATOR CODE ###############################
-"""#Timers for debugging to determine when certain events happen
+#Timers for debugging to determine when certain events happen
 start_init = time.monotonic()
 
 
@@ -88,7 +88,7 @@ elapsed_gru = timedelta(seconds=end_gru - start_GRU)
 print ("Generative Network initialization COMPLETE.")
 print ("Time elapsed for GRU initial training: %s"%(elapsed_gru))
 
-"""
+
 ######################## INITIAL DISCRIMINATOR CODE ########################
 #Timer to determine how long discriminator takes to discriminate
 start_disc = time.monotonic()
@@ -116,7 +116,7 @@ print ("Time elapsed for Discriminator initial training: %s"%(elapsed_disc))
 #print ("Time elapsed for initial discriminative run: %s"%(elapsed_init))
 
 ####################### REPEATED SEGMENT - GENERATIVE ADVERSARIAL ###################
-"""#Starts a timer to track how long repeated segment takes
+#Starts a timer to track how long repeated segment takes
 
 start_repeat = time.monotonic()
 
@@ -204,4 +204,3 @@ print ("Number of iterations to train: %s"%(iternum))
 print ("Time spent iterating: %s" % (elapsed_repeat))
 print ("Final test accuracy: %s"%(errorlist[len(errorlist)-1]))
 print ("Overall time elapsed: %s"%(elapsed_overall))
-"""
