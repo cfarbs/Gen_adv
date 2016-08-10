@@ -81,14 +81,15 @@ print ("Time elapsed: %s" % (elapsed_gru_train))
 
 #Generate a data set for the discriminator to look at
 init_data = generate_sentences(init_model, 10000, index_to_word, word_to_index)
-
+print (len(init_data))
+print(init_data[0])
 #Take the overall time required for the initial training.
 end_gru = time.monotonic()
 elapsed_gru = timedelta(seconds=end_gru - start_GRU)
 print ("Generative Network initialization COMPLETE.")
 print ("Time elapsed for GRU initial training: %s"%(elapsed_gru))
 
-
+"""
 ######################## INITIAL DISCRIMINATOR CODE ########################
 #Timer to determine how long discriminator takes to discriminate
 start_disc = time.monotonic()
@@ -197,9 +198,12 @@ end_overall = time.monotonic()
 elapsed_repeat = timedelta(seconds=end_repeat - start_repeat)
 elapsed_overall = timedelta(seconds=end_overall - start_overall)
 
+with open("gen_adv_errors.pkl", 'wb') as errs_file:
+    pickle.dump(errorlist, errs_file)
 #prints and summarizes the run
 print ("Generative Adversarial Network complete!")
 print ("Number of iterations to train: %s"%(iternum))
 print ("Time spent iterating: %s" % (elapsed_repeat))
 print ("Final test accuracy: %s"%(errorlist[len(errorlist)-1]))
 print ("Overall time elapsed: %s"%(elapsed_overall))
+"""
