@@ -8,7 +8,7 @@
 
 ################## DEBUG TOGGLE #################
 
-Debug = True
+Debug = False
 
 #################################################
 
@@ -123,16 +123,16 @@ start_repeat = time.monotonic()
 #Generator now will use data points from the discriminator to train.
 
 ###################### FOR DEBUGGING ##############################
-if Debug:
-    #Assign all variables required for the generator.
-    LEARNING_RATE = float(os.environ.get("LEARNING_RATE", "0.001"))
-    VOCABULARY_SIZE = int(os.environ.get("VOCABULARY_SIZE", "22"))
-    EMBEDDING_DIM = int(os.environ.get("EMBEDDING_DIM", "48"))
-    HIDDEN_DIM = int(os.environ.get("HIDDEN_DIM", "128"))
-    NEPOCH = int(os.environ.get("NEPOCH", "20"))
-    MODEL_OUTPUT_FILE = os.environ.get("MODEL_OUTPUT_FILE")
-    PRINT_EVERY = int(os.environ.get("PRINT_EVERY", "25000"))
-    INPUT_DATA_FILE = os.environ.get("INPUT_DATA_FILE", "GRU/Init_seq.pkl")
+#if Debug:
+#Assign all variables required for the generator.
+LEARNING_RATE = float(os.environ.get("LEARNING_RATE", "0.001"))
+VOCABULARY_SIZE = int(os.environ.get("VOCABULARY_SIZE", "24"))
+EMBEDDING_DIM = int(os.environ.get("EMBEDDING_DIM", "48"))
+HIDDEN_DIM = int(os.environ.get("HIDDEN_DIM", "128"))
+NEPOCH = int(os.environ.get("NEPOCH", "20"))
+MODEL_OUTPUT_FILE = os.environ.get("MODEL_OUTPUT_FILE")
+PRINT_EVERY = int(os.environ.get("PRINT_EVERY", "25000"))
+#INPUT_DATA_FILE = os.environ.get("INPUT_DATA_FILE", "GRU/Init_seq.pkl")
 ######################################################################
 ADV = os.environ.get("ADV", True)
 
@@ -141,14 +141,10 @@ init_data = []
 
 #List to store the true positives found by the generator, and feed them to the discriminator
 repeat_data = Positives(probs)
-print (repeat_data[0])
+
 tempdict = config['helixdict'][0]
-
-
 aadict, feats = contextdict(**tempdict)
-
 repeat_data = Value2Key(repeat_data,aadict)
-#print (repeat_data[0])
 repeat_data = Num2Prot(repeat_data)
 
 #Variable to count how many iterations it takes for the generator to fool the discriminator
@@ -174,9 +170,12 @@ while np.mean(errorlist) not in range(48,53):
     for epoch in range(NEPOCH):
       train_with_sgd(model, x_train, y_train, learning_rate=LEARNING_RATE, nepoch=1, decay=0.9,
         callback_every=200, callback=sgd_callback)
+
     #Creates another dataset for the discriminator
     init_data = generate_sentences(model, 10000, index_to_word, word_to_index)
     print (len(init_data))
+    if len(init_data) == 0:
+        print ("The generator did not generate data..?")
     #Discriminator discriminates, using same arguments passed initially.
     args = parse_args()
     errors, probs, config = main(args,init_data)
