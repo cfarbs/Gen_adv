@@ -40,7 +40,7 @@ start_overall = time.monotonic()
 
 #Assign all variables required for the generator.
 LEARNING_RATE = float(os.environ.get("LEARNING_RATE", "0.001"))
-VOCABULARY_SIZE = int(os.environ.get("VOCABULARY_SIZE", "24"))
+VOCABULARY_SIZE = int(os.environ.get("VOCABULARY_SIZE", "22"))
 EMBEDDING_DIM = int(os.environ.get("EMBEDDING_DIM", "48"))
 HIDDEN_DIM = int(os.environ.get("HIDDEN_DIM", "128"))
 NEPOCH = int(os.environ.get("NEPOCH", "20"))
