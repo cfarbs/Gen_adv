@@ -82,13 +82,13 @@ print ("Time elapsed: %s" % (elapsed_gru_train))
 #Generate a data set for the discriminator to look at
 init_data = generate_sentences(init_model, 10000, index_to_word, word_to_index)
 print (len(init_data))
-print(init_data[0])
+
 #Take the overall time required for the initial training.
 end_gru = time.monotonic()
 elapsed_gru = timedelta(seconds=end_gru - start_GRU)
 print ("Generative Network initialization COMPLETE.")
 print ("Time elapsed for GRU initial training: %s"%(elapsed_gru))
-
+print(init_data)
 """
 ######################## INITIAL DISCRIMINATOR CODE ########################
 #Timer to determine how long discriminator takes to discriminate
